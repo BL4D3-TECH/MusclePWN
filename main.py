@@ -61,10 +61,11 @@ for index, word in enumerate(words):
 
 if conn_serv == 1:
     t1 = threading.Thread(target=FTP_conn, args=(dicc1,))
+    t1.start()
     t1.run()
     t2 = threading.Thread(target=FTP_conn, args=(dicc2,))
+    t2.start()
     t2.run()
-
 if conn_serv == 2:
     t1 = threading.Thread(target=SSH_conn, args=(ip, dicc1, Known_hosts_path))
     t1.run()
