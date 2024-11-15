@@ -1,8 +1,1 @@
-hello
-kali
-admin
-user
 pi
-123
-nick
-passwd
